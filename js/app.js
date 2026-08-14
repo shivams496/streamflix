@@ -24,6 +24,9 @@ const avatarInitial = document.getElementById("avatar-initial");
 const configWarning = document.getElementById("config-warning");
 const searchInput = document.getElementById("search-input");
 const searchToggle = document.getElementById("search-toggle");
+const navLinks = document.querySelectorAll(".nav-links a");
+
+let currentView = "home";
 
 if (!CONFIG_IS_SET) {
   configWarning.classList.remove("hidden");
@@ -62,8 +65,27 @@ searchInput.addEventListener("input", () => {
   const q = searchInput.value.trim();
   searchDebounce = setTimeout(() => {
     if (q.length > 1) runSearch(q);
-    else renderDefaultRows();
+    else loadView(currentView);
   }, 400);
+});
+
+navLinks.forEach((link) => {
+  link.addEventListener("click", async (e) => {
+    e.preventDefault();
+    const view = link.dataset.view || "home";
+    if (view === currentView) return;
+    navLinks.forEach((a) => a.classList.remove("active"));
+    link.classList.add("active");
+    currentView = view;
+    searchInput.value = "";
+    searchInput.classList.remove("open");
+    loader.classList.remove("hidden");
+    try {
+      await loadView(view);
+    } finally {
+      loader.classList.add("hidden");
+    }
+  });
 });
 
 async function tmdbGet(path) {
@@ -72,26 +94,82 @@ async function tmdbGet(path) {
   return res.json();
 }
 
-const ROWS = [
-  { title: "Trending Now", path: "/trending/movie/week" },
-  { title: "Popular on Netflix Clone", path: "/movie/popular" },
-  { title: "Top Rated", path: "/movie/top_rated" },
-  { title: "Action & Adventure", path: "/discover/movie?with_genres=28" },
-  { title: "Comedies", path: "/discover/movie?with_genres=35" },
-  { title: "Sci-Fi & Fantasy", path: "/discover/movie?with_genres=878" },
-  { title: "Horror", path: "/discover/movie?with_genres=27" },
-];
+const VIEWS = {
+  home: {
+    heroPath: "/trending/movie/week",
+    heroMediaType: "movie",
+    rows: [
+      { title: "Trending Now", path: "/trending/movie/week", mediaType: "movie" },
+      { title: "Popular on StreamFlix", path: "/movie/popular", mediaType: "movie" },
+      { title: "Top Rated", path: "/movie/top_rated", mediaType: "movie" },
+      { title: "Action & Adventure", path: "/discover/movie?with_genres=28", mediaType: "movie" },
+      { title: "Comedies", path: "/discover/movie?with_genres=35", mediaType: "movie" },
+      { title: "Sci-Fi & Fantasy", path: "/discover/movie?with_genres=878", mediaType: "movie" },
+      { title: "Horror", path: "/discover/movie?with_genres=27", mediaType: "movie" },
+    ],
+  },
+  movies: {
+    heroPath: "/movie/popular",
+    heroMediaType: "movie",
+    rows: [
+      { title: "Popular Movies", path: "/movie/popular", mediaType: "movie" },
+      { title: "Top Rated Movies", path: "/movie/top_rated", mediaType: "movie" },
+      { title: "Now Playing", path: "/movie/now_playing", mediaType: "movie" },
+      { title: "Action & Adventure", path: "/discover/movie?with_genres=28", mediaType: "movie" },
+      { title: "Comedies", path: "/discover/movie?with_genres=35", mediaType: "movie" },
+      { title: "Drama", path: "/discover/movie?with_genres=18", mediaType: "movie" },
+      { title: "Horror", path: "/discover/movie?with_genres=27", mediaType: "movie" },
+    ],
+  },
+  tv: {
+    heroPath: "/trending/tv/week",
+    heroMediaType: "tv",
+    rows: [
+      { title: "Trending TV Shows", path: "/trending/tv/week", mediaType: "tv" },
+      { title: "Popular TV Shows", path: "/tv/popular", mediaType: "tv" },
+      { title: "Top Rated TV Shows", path: "/tv/top_rated", mediaType: "tv" },
+      { title: "Airing Today", path: "/tv/airing_today", mediaType: "tv" },
+      { title: "Action & Adventure", path: "/discover/tv?with_genres=10759", mediaType: "tv" },
+      { title: "Comedy", path: "/discover/tv?with_genres=35", mediaType: "tv" },
+      { title: "Crime", path: "/discover/tv?with_genres=80", mediaType: "tv" },
+    ],
+  },
+  new: {
+    heroPath: "/trending/all/week",
+    heroMediaType: "movie",
+    rows: [
+      { title: "Trending This Week", path: "/trending/all/week", mediaType: "movie" },
+      { title: "New Movie Releases", path: "/movie/now_playing", mediaType: "movie" },
+      { title: "Currently Airing", path: "/tv/on_the_air", mediaType: "tv" },
+      { title: "Upcoming Movies", path: "/movie/upcoming", mediaType: "movie" },
+    ],
+  },
+};
 
 async function initApp() {
   try {
-    const trending = await tmdbGet("/trending/movie/week");
-    renderHero(trending.results);
-    await renderDefaultRows();
+    await loadView("home");
   } catch (err) {
     console.error(err);
     rowsWrap.innerHTML = `<p class="row-empty">Couldn't load content. Check your TMDB token in js/config.js.</p>`;
   } finally {
     loader.classList.add("hidden");
+  }
+}
+
+async function loadView(view) {
+  const config = VIEWS[view] || VIEWS.home;
+  try {
+    const heroData = await tmdbGet(config.heroPath);
+    const heroList = (heroData.results || []).map((m) => ({
+      ...m,
+      media_type: m.media_type || config.heroMediaType,
+    }));
+    renderHero(heroList);
+    await renderRowSet(config.rows);
+  } catch (err) {
+    console.error(err);
+    rowsWrap.innerHTML = `<p class="row-empty">Couldn't load this section. Check your TMDB token in js/config.js.</p>`;
   }
 }
 
@@ -112,17 +190,18 @@ function renderHero(list) {
       </div>
     </div>
   `;
+  const heroType = pick.media_type || "movie";
   heroEl.querySelectorAll("[data-id]").forEach((btn) =>
-    btn.addEventListener("click", () => openTrailer(pick.id, "movie"))
+    btn.addEventListener("click", () => openTrailer(pick.id, heroType, pick))
   );
 }
 
-async function renderDefaultRows() {
+async function renderRowSet(rows) {
   rowsWrap.innerHTML = "";
-  for (const row of ROWS) {
+  for (const row of rows) {
     try {
       const data = await tmdbGet(row.path);
-      renderRow(row.title, data.results || []);
+      renderRow(row.title, data.results || [], row.mediaType || "movie");
     } catch (err) {
       console.error(`Row failed: ${row.title}`, err);
     }
@@ -149,7 +228,7 @@ function renderRow(title, items, mediaType = "movie") {
         <div class="r">${m.vote_average ? "★ " + m.vote_average.toFixed(1) : ""}</div>
       </div>
     `;
-    card.addEventListener("click", () => openTrailer(m.id, mediaType, m));
+    card.addEventListener("click", () => openTrailer(m.id, m.media_type || mediaType, m));
     track.appendChild(card);
   });
   rowsWrap.appendChild(section);
@@ -158,10 +237,13 @@ function renderRow(title, items, mediaType = "movie") {
 async function runSearch(query) {
   loader.classList.remove("hidden");
   try {
-    const data = await tmdbGet(`/search/movie?query=${encodeURIComponent(query)}`);
+    const data = await tmdbGet(`/search/multi?query=${encodeURIComponent(query)}`);
+    const results = (data.results || []).filter(
+      (r) => r.media_type === "movie" || r.media_type === "tv"
+    );
     rowsWrap.innerHTML = "";
-    renderRow(`Results for "${query}"`, data.results || []);
-    if (!data.results?.length) {
+    renderRow(`Results for "${query}"`, results, "movie");
+    if (!results.length) {
       rowsWrap.innerHTML = `<p class="row-empty">No matches for "${escapeHtml(query)}".</p>`;
     }
   } catch (err) {

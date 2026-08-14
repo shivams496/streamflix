@@ -35,9 +35,31 @@ button { font-family: inherit; cursor: pointer; border: none; }
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
   background:
-    linear-gradient(to bottom, rgba(0,0,0,0.55), rgba(0,0,0,0.85)),
-    url('https://assets.nflxext.com/ffe/siteui/vlv3/9f45c447-6497-4276-9a5c-bdcf8149217d/eb8a2b91-fdf7-4e94-99fa-e93d716f5606/US-en-20230814-popsignuptwoweeks-perspective_alpha_website_large.jpg') center/cover no-repeat;
+    radial-gradient(ellipse 70% 55% at 18% 15%, rgba(229,9,20,0.24), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 88% 85%, rgba(140,10,20,0.28), transparent 55%),
+    linear-gradient(180deg, #060606 0%, #0b0b0b 45%, #140707 100%);
+}
+.auth-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    118deg,
+    rgba(255,255,255,0.025) 0px,
+    rgba(255,255,255,0.025) 1px,
+    transparent 1px,
+    transparent 96px
+  );
+  pointer-events: none;
+}
+.auth-page::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 100% 60% at 50% 100%, rgba(0,0,0,0.55), transparent 70%);
+  pointer-events: none;
 }
 
 .auth-nav {
@@ -54,11 +76,15 @@ button { font-family: inherit; cursor: pointer; border: none; }
 }
 
 .auth-box {
-  background: rgba(0,0,0,0.82);
+  position: relative;
+  z-index: 1;
+  background: rgba(10,10,10,0.9);
+  border: 1px solid rgba(255,255,255,0.06);
   padding: 60px 68px 40px;
-  border-radius: 4px;
+  border-radius: 6px;
   width: 100%;
   max-width: 440px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.6);
 }
 
 .auth-box h1 {
@@ -266,7 +292,7 @@ button { font-family: inherit; cursor: pointer; border: none; }
 .hero-btn.info:hover { background: rgba(109,109,110,0.85); }
 
 /* ---------- Rows ---------- */
-.rows-wrap { padding: 0 0 60px; margin-top: -70px; position: relative; z-index: 3; }
+.rows-wrap { padding: 36px 0 60px; margin-top: 0; position: relative; z-index: 3; }
 .row { margin-bottom: 34px; }
 .row-title {
   font-size: 1.25rem;
