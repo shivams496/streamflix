@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>StreamFlix</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div id="loader" class="loader"><div class="logo">STREAMFLIX</div></div>
+<div id="config-warning" class="config-warning hidden"></div>
+
+<nav id="navbar" class="navbar">
+  <div class="nav-left">
+    <div class="logo">STREAMFLIX</div>
+    <ul class="nav-links">
+      <li><a href="#" class="active">Home</a></li>
+      <li><a href="#">TV Shows</a></li>
+      <li><a href="#">Movies</a></li>
+      <li><a href="#">New &amp; Popular</a></li>
+    </ul>
+  </div>
+  <div class="nav-right">
+    <div class="search-wrap">
+      <button id="search-toggle" class="icon-btn" aria-label="Search">🔍</button>
+      <input id="search-input" type="text" placeholder="Titles, people, genres" />
+    </div>
+    <div class="avatar-btn"><span id="avatar-initial">U</span></div>
+    <button id="logout-btn" class="logout-btn">Sign Out</button>
+  </div>
+</nav>
+
+<header id="hero" class="hero"></header>
+
+<main id="rows-wrap" class="rows-wrap"></main>
+
+<div id="modal-overlay" class="modal-overlay">
+  <div class="modal-box">
+    <div id="modal-video-wrap" class="modal-video-wrap"></div>
+    <button id="modal-close" class="modal-close">✕</button>
+    <div class="modal-body">
+      <h2 id="modal-title"></h2>
+      <p id="modal-desc"></p>
+      <div id="modal-tags" class="modal-tags"></div>
+    </div>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sign In — StreamFlix</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div id="config-warning" class="config-warning hidden"></div>
+
+<div class="auth-page">
+  <div class="auth-nav"><div class="logo">STREAMFLIX</div></div>
+
+  <div class="auth-box">
+    <form id="login-form">
+      <h1>Sign In</h1>
+      <div id="login-error" class="error-msg"></div>
+      <div class="field"><input id="login-email" type="email" placeholder="Email" required autocomplete="email" /></div>
+      <div class="field"><input id="login-password" type="password" placeholder="Password" required autocomplete="current-password" /></div>
+      <button id="login-btn" class="btn-primary" type="submit">Sign In</button>
+      <p class="auth-switch">New to StreamFlix? <span id="show-signup">Sign up now</span>.</p>
+      <p class="auth-note">This is a student project (placement task) demo. Authentication is real (Firebase) — please don't reuse a real password.</p>
+    </form>
+
+    <form id="signup-form" class="hidden">
+      <h1>Create Account</h1>
+      <div id="signup-error" class="error-msg"></div>
+      <div class="field"><input id="signup-email" type="email" placeholder="Email" required autocomplete="email" /></div>
+      <div class="field"><input id="signup-password" type="password" placeholder="Password (6+ characters)" required minlength="6" autocomplete="new-password" /></div>
+      <button id="signup-btn" class="btn-primary" type="submit">Sign Up</button>
+      <p class="auth-switch">Already have an account? <span id="show-login">Sign in</span>.</p>
+    </form>
+  </div>
+</div>
+
+<script>window.FIREBASE_CONFIG_LOADED = true;</script>
+<script src="js/config.js"></script>
+<script type="module" src="js/auth.js"></script>
+</body>
+</html>
