@@ -25,6 +25,8 @@ const configWarning = document.getElementById("config-warning");
 const searchInput = document.getElementById("search-input");
 const searchToggle = document.getElementById("search-toggle");
 const navLinks = document.querySelectorAll(".nav-links a");
+const navLinksEl = document.getElementById("nav-links");
+const mobileMenuBtn = document.getElementById("mobile-menu-btn");
 const avatarBtn = document.getElementById("avatar-btn");
 const profileDropdown = document.getElementById("profile-dropdown");
 const profileEmail = document.getElementById("profile-email");
@@ -101,9 +103,14 @@ searchInput.addEventListener("input", () => {
   }, 400);
 });
 
+mobileMenuBtn.addEventListener("click", () => {
+  navLinksEl.classList.toggle("mobile-open");
+});
+
 navLinks.forEach((link) => {
   link.addEventListener("click", async (e) => {
     e.preventDefault();
+    navLinksEl.classList.remove("mobile-open");
     const view = link.dataset.view || "home";
     if (view === currentView) return;
     navLinks.forEach((a) => a.classList.remove("active"));
@@ -249,16 +256,28 @@ async function loadView(view) {
   }
 }
 
-function renderContinueWatching() {
-  const history = getWatchHistory();
-  if (!history.length) return;
+function createRowShell(title, trackExtraClass = "") {
   const section = document.createElement("div");
   section.className = "row";
   section.innerHTML = `
-    <div class="row-title">Continue Watching for You</div>
-    <div class="row-track"></div>
+    <div class="row-title">${escapeHtml(title)}</div>
+    <div class="row-track-wrap">
+      <button class="row-arrow left" aria-label="Scroll left">&#10094;</button>
+      <div class="row-track ${trackExtraClass}"></div>
+      <button class="row-arrow right" aria-label="Scroll right">&#10095;</button>
+    </div>
   `;
   const track = section.querySelector(".row-track");
+  const [leftBtn, rightBtn] = section.querySelectorAll(".row-arrow");
+  leftBtn.addEventListener("click", () => track.scrollBy({ left: -track.clientWidth * 0.85, behavior: "smooth" }));
+  rightBtn.addEventListener("click", () => track.scrollBy({ left: track.clientWidth * 0.85, behavior: "smooth" }));
+  return { section, track };
+}
+
+function renderContinueWatching() {
+  const history = getWatchHistory();
+  if (!history.length) return;
+  const { section, track } = createRowShell("Continue Watching for You");
   history.forEach((m) => {
     if (!m.poster_path) return;
     const card = document.createElement("div");
@@ -281,13 +300,7 @@ async function renderTop10(config) {
     const data = await tmdbGet(config.path);
     const items = (data.results || []).filter((m) => m.poster_path).slice(0, 10);
     if (!items.length) return;
-    const section = document.createElement("div");
-    section.className = "row";
-    section.innerHTML = `
-      <div class="row-title">${escapeHtml(config.title)}</div>
-      <div class="row-track top10-track"></div>
-    `;
-    const track = section.querySelector(".row-track");
+    const { section, track } = createRowShell(config.title, "top10-track");
     items.forEach((m, i) => {
       const item = document.createElement("div");
       item.className = "top10-card";
@@ -334,13 +347,7 @@ function renderHero(list) {
 function renderRow(title, items, mediaType = "movie") {
   const withPosters = items.filter((m) => m.poster_path);
   if (!withPosters.length) return;
-  const section = document.createElement("div");
-  section.className = "row";
-  section.innerHTML = `
-    <div class="row-title">${escapeHtml(title)}</div>
-    <div class="row-track"></div>
-  `;
-  const track = section.querySelector(".row-track");
+  const { section, track } = createRowShell(title);
   withPosters.forEach((m) => {
     const card = document.createElement("div");
     card.className = "card";
