@@ -88,6 +88,36 @@ navLinks.forEach((link) => {
   });
 });
 
+const WATCH_HISTORY_KEY = "sf_continue_watching";
+
+function recordWatch(item, mediaType) {
+  if (!item || !item.id) return;
+  let history = [];
+  try {
+    history = JSON.parse(localStorage.getItem(WATCH_HISTORY_KEY) || "[]");
+  } catch {
+    history = [];
+  }
+  history = history.filter((h) => !(h.id === item.id && h.mediaType === mediaType));
+  history.unshift({
+    id: item.id,
+    mediaType,
+    title: item.title || item.name || "",
+    poster_path: item.poster_path || null,
+    backdrop_path: item.backdrop_path || null,
+  });
+  history = history.slice(0, 12);
+  localStorage.setItem(WATCH_HISTORY_KEY, JSON.stringify(history));
+}
+
+function getWatchHistory() {
+  try {
+    return JSON.parse(localStorage.getItem(WATCH_HISTORY_KEY) || "[]");
+  } catch {
+    return [];
+  }
+}
+
 async function tmdbGet(path) {
   const res = await fetch(`${TMDB_API}${path}`, { headers: tmdbHeaders });
   if (!res.ok) throw new Error(`TMDB error ${res.status}`);
@@ -98,6 +128,7 @@ const VIEWS = {
   home: {
     heroPath: "/trending/movie/week",
     heroMediaType: "movie",
+    top10: { title: "Top 10 Movies Today", path: "/trending/movie/day", mediaType: "movie" },
     rows: [
       { title: "Trending Now", path: "/trending/movie/week", mediaType: "movie" },
       { title: "Popular on StreamFlix", path: "/movie/popular", mediaType: "movie" },
@@ -111,6 +142,7 @@ const VIEWS = {
   movies: {
     heroPath: "/movie/popular",
     heroMediaType: "movie",
+    top10: { title: "Top 10 Movies Today", path: "/trending/movie/day", mediaType: "movie" },
     rows: [
       { title: "Popular Movies", path: "/movie/popular", mediaType: "movie" },
       { title: "Top Rated Movies", path: "/movie/top_rated", mediaType: "movie" },
@@ -124,6 +156,7 @@ const VIEWS = {
   tv: {
     heroPath: "/trending/tv/week",
     heroMediaType: "tv",
+    top10: { title: "Top 10 TV Shows Today", path: "/trending/tv/day", mediaType: "tv" },
     rows: [
       { title: "Trending TV Shows", path: "/trending/tv/week", mediaType: "tv" },
       { title: "Popular TV Shows", path: "/tv/popular", mediaType: "tv" },
@@ -137,6 +170,7 @@ const VIEWS = {
   new: {
     heroPath: "/trending/all/week",
     heroMediaType: "movie",
+    top10: null,
     rows: [
       { title: "Trending This Week", path: "/trending/all/week", mediaType: "movie" },
       { title: "New Movie Releases", path: "/movie/now_playing", mediaType: "movie" },
@@ -166,10 +200,79 @@ async function loadView(view) {
       media_type: m.media_type || config.heroMediaType,
     }));
     renderHero(heroList);
-    await renderRowSet(config.rows);
+    rowsWrap.innerHTML = "";
+    renderContinueWatching();
+    if (config.top10) await renderTop10(config.top10);
+    for (const row of config.rows) {
+      try {
+        const data = await tmdbGet(row.path);
+        renderRow(row.title, data.results || [], row.mediaType || "movie");
+      } catch (err) {
+        console.error(`Row failed: ${row.title}`, err);
+      }
+    }
   } catch (err) {
     console.error(err);
     rowsWrap.innerHTML = `<p class="row-empty">Couldn't load this section. Check your TMDB token in js/config.js.</p>`;
+  }
+}
+
+function renderContinueWatching() {
+  const history = getWatchHistory();
+  if (!history.length) return;
+  const section = document.createElement("div");
+  section.className = "row";
+  section.innerHTML = `
+    <div class="row-title">Continue Watching for You</div>
+    <div class="row-track"></div>
+  `;
+  const track = section.querySelector(".row-track");
+  history.forEach((m) => {
+    if (!m.poster_path) return;
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <img loading="lazy" src="${IMG_BASE}/w500${m.poster_path}" alt="${escapeHtml(m.title)}" />
+      <div class="card-meta">
+        <div class="t">${escapeHtml(m.title)}</div>
+        <div class="r">Recently viewed</div>
+      </div>
+    `;
+    card.addEventListener("click", () => openTrailer(m.id, m.mediaType, m));
+    track.appendChild(card);
+  });
+  rowsWrap.appendChild(section);
+}
+
+async function renderTop10(config) {
+  try {
+    const data = await tmdbGet(config.path);
+    const items = (data.results || []).filter((m) => m.poster_path).slice(0, 10);
+    if (!items.length) return;
+    const section = document.createElement("div");
+    section.className = "row";
+    section.innerHTML = `
+      <div class="row-title">${escapeHtml(config.title)}</div>
+      <div class="row-track top10-track"></div>
+    `;
+    const track = section.querySelector(".row-track");
+    items.forEach((m, i) => {
+      const item = document.createElement("div");
+      item.className = "top10-card";
+      item.innerHTML = `
+        <span class="top10-number">${i + 1}</span>
+        <div class="top10-poster">
+          <img loading="lazy" src="${IMG_BASE}/w342${m.poster_path}" alt="${escapeHtml(m.title || m.name)}" />
+        </div>
+      `;
+      item.addEventListener("click", () =>
+        openTrailer(m.id, m.media_type || config.mediaType, m)
+      );
+      track.appendChild(item);
+    });
+    rowsWrap.appendChild(section);
+  } catch (err) {
+    console.error("Top 10 row failed", err);
   }
 }
 
@@ -194,18 +297,6 @@ function renderHero(list) {
   heroEl.querySelectorAll("[data-id]").forEach((btn) =>
     btn.addEventListener("click", () => openTrailer(pick.id, heroType, pick))
   );
-}
-
-async function renderRowSet(rows) {
-  rowsWrap.innerHTML = "";
-  for (const row of rows) {
-    try {
-      const data = await tmdbGet(row.path);
-      renderRow(row.title, data.results || [], row.mediaType || "movie");
-    } catch (err) {
-      console.error(`Row failed: ${row.title}`, err);
-    }
-  }
 }
 
 function renderRow(title, items, mediaType = "movie") {
@@ -267,6 +358,7 @@ async function openTrailer(id, mediaType, details) {
   modalTitle.textContent = "";
   modalDesc.textContent = "";
   modalTags.innerHTML = "";
+  if (details) recordWatch(details, mediaType);
 
   try {
     const [videos, info] = await Promise.all([

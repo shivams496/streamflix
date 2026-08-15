@@ -334,6 +334,41 @@ button { font-family: inherit; cursor: pointer; border: none; }
 
 .row-empty { color: var(--text-dim); font-size: 0.9rem; padding: 0 48px; }
 
+/* ---------- Top 10 numbered row ---------- */
+.top10-track { align-items: flex-end; }
+.top10-card {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: flex-end;
+  cursor: pointer;
+}
+.top10-number {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 6.5rem;
+  line-height: 0.8;
+  color: transparent;
+  -webkit-text-stroke: 2px #4d4d4d;
+  margin-right: -22px;
+  z-index: 1;
+  user-select: none;
+  transition: -webkit-text-stroke 0.2s ease;
+}
+.top10-card:hover .top10-number {
+  -webkit-text-stroke: 2px var(--red);
+}
+.top10-poster {
+  flex: 0 0 132px;
+  height: 124px;
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+  z-index: 2;
+  transition: transform 0.25s ease;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+}
+.top10-card:hover .top10-poster { transform: scale(1.1); z-index: 10; }
+.top10-poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
 /* ---------- Modal Player ---------- */
 .modal-overlay {
   position: fixed; inset: 0;
