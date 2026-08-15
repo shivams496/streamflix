@@ -26,8 +26,18 @@
       <button id="search-toggle" class="icon-btn" aria-label="Search">🔍</button>
       <input id="search-input" type="text" placeholder="Titles, people, genres" />
     </div>
-    <div class="avatar-btn"><span id="avatar-initial">U</span></div>
-    <button id="logout-btn" class="logout-btn">Sign Out</button>
+    <div class="profile-menu">
+      <button id="avatar-btn" class="avatar-btn" aria-haspopup="true" aria-expanded="false">
+        <span id="avatar-initial">U</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="caret"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div id="profile-dropdown" class="profile-dropdown hidden">
+        <div class="profile-email" id="profile-email"></div>
+        <div class="profile-meta" id="profile-meta"></div>
+        <hr class="profile-divider" />
+        <button id="logout-btn" class="dropdown-item">Sign Out of StreamFlix</button>
+      </div>
+    </div>
   </div>
 </nav>
 

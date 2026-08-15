@@ -208,22 +208,64 @@ button { font-family: inherit; cursor: pointer; border: none; }
 .icon-btn:hover { color: var(--text-dim); }
 
 .avatar-btn {
-  width: 32px; height: 32px;
+  width: auto;
+  height: 32px;
+  padding: 0 8px 0 0;
   border-radius: 4px;
   background: linear-gradient(135deg, var(--red), #6b0509);
-  display: flex; align-items: center; justify-content: center;
+  display: flex; align-items: center; justify-content: center; gap: 4px;
   font-weight: 700;
 }
-
-.logout-btn {
-  background: transparent;
-  border: 1px solid #666;
-  color: var(--text-dim);
-  padding: 6px 14px;
+.avatar-btn span {
+  width: 32px; height: 32px;
   border-radius: 4px;
-  font-size: 0.85rem;
+  display: flex; align-items: center; justify-content: center;
 }
-.logout-btn:hover { border-color: #fff; color: #fff; }
+.avatar-btn .caret {
+  color: #fff;
+  transition: transform 0.2s ease;
+}
+.avatar-btn[aria-expanded="true"] .caret { transform: rotate(180deg); }
+
+.profile-menu { position: relative; }
+.profile-dropdown {
+  position: absolute;
+  top: 46px;
+  right: 0;
+  min-width: 240px;
+  background: #181818;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 6px;
+  padding: 16px 18px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.65);
+  z-index: 600;
+}
+.profile-dropdown.hidden { display: none; }
+.profile-email {
+  font-weight: 600;
+  font-size: 0.9rem;
+  word-break: break-all;
+}
+.profile-meta {
+  color: var(--text-dim);
+  font-size: 0.78rem;
+  margin-top: 4px;
+}
+.profile-divider {
+  border: none;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  margin: 12px 0;
+}
+.dropdown-item {
+  width: 100%;
+  text-align: left;
+  background: none;
+  color: #fff;
+  padding: 6px 0;
+  font-size: 0.9rem;
+  transition: color 0.15s;
+}
+.dropdown-item:hover { color: var(--red); }
 
 /* ---------- Hero ---------- */
 .hero {

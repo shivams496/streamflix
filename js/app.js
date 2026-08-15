@@ -25,6 +25,10 @@ const configWarning = document.getElementById("config-warning");
 const searchInput = document.getElementById("search-input");
 const searchToggle = document.getElementById("search-toggle");
 const navLinks = document.querySelectorAll(".nav-links a");
+const avatarBtn = document.getElementById("avatar-btn");
+const profileDropdown = document.getElementById("profile-dropdown");
+const profileEmail = document.getElementById("profile-email");
+const profileMeta = document.getElementById("profile-meta");
 
 let currentView = "home";
 
@@ -42,12 +46,40 @@ onAuthStateChanged(auth, (user) => {
     return;
   }
   avatarInitial.textContent = (user.email || "U")[0].toUpperCase();
+  profileEmail.textContent = user.email || "";
+  const joined = user.metadata?.creationTime
+    ? new Date(user.metadata.creationTime).toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    : null;
+  profileMeta.textContent = joined ? `Member since ${joined}` : "";
   if (CONFIG_IS_SET) initApp();
 });
 
 document.getElementById("logout-btn").addEventListener("click", async () => {
   await signOut(auth);
   window.location.href = "login.html";
+});
+
+avatarBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  const isOpen = !profileDropdown.classList.contains("hidden");
+  profileDropdown.classList.toggle("hidden", isOpen);
+  avatarBtn.setAttribute("aria-expanded", String(!isOpen));
+});
+document.addEventListener("click", (e) => {
+  if (!profileDropdown.contains(e.target) && e.target !== avatarBtn) {
+    profileDropdown.classList.add("hidden");
+    avatarBtn.setAttribute("aria-expanded", "false");
+  }
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    profileDropdown.classList.add("hidden");
+    avatarBtn.setAttribute("aria-expanded", "false");
+  }
 });
 
 window.addEventListener("scroll", () => {
