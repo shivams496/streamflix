@@ -31,6 +31,10 @@ const avatarBtn = document.getElementById("avatar-btn");
 const profileDropdown = document.getElementById("profile-dropdown");
 const profileEmail = document.getElementById("profile-email");
 const profileMeta = document.getElementById("profile-meta");
+const profileAvatarLg = document.getElementById("profile-avatar-lg");
+const helpModal = document.getElementById("help-modal");
+const helpCentreBtn = document.getElementById("help-centre-btn");
+const helpClose = document.getElementById("help-close");
 
 let currentView = "home";
 
@@ -48,6 +52,7 @@ onAuthStateChanged(auth, (user) => {
     return;
   }
   avatarInitial.textContent = (user.email || "U")[0].toUpperCase();
+  profileAvatarLg.textContent = (user.email || "U")[0].toUpperCase();
   profileEmail.textContent = user.email || "";
   const joined = user.metadata?.creationTime
     ? new Date(user.metadata.creationTime).toLocaleDateString(undefined, {
@@ -81,7 +86,18 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     profileDropdown.classList.add("hidden");
     avatarBtn.setAttribute("aria-expanded", "false");
+    helpModal.classList.remove("open");
   }
+});
+
+helpCentreBtn.addEventListener("click", () => {
+  profileDropdown.classList.add("hidden");
+  avatarBtn.setAttribute("aria-expanded", "false");
+  helpModal.classList.add("open");
+});
+helpClose.addEventListener("click", () => helpModal.classList.remove("open"));
+helpModal.addEventListener("click", (e) => {
+  if (e.target === helpModal) helpModal.classList.remove("open");
 });
 
 window.addEventListener("scroll", () => {
@@ -279,11 +295,12 @@ function renderContinueWatching() {
   if (!history.length) return;
   const { section, track } = createRowShell("Continue Watching for You");
   history.forEach((m) => {
-    if (!m.poster_path) return;
+    const img = m.backdrop_path || m.poster_path;
+    if (!img) return;
     const card = document.createElement("div");
     card.className = "card";
     card.innerHTML = `
-      <img loading="lazy" src="${IMG_BASE}/w500${m.poster_path}" alt="${escapeHtml(m.title)}" />
+      <img loading="lazy" src="${IMG_BASE}/w500${img}" alt="${escapeHtml(m.title)}" />
       <div class="card-meta">
         <div class="t">${escapeHtml(m.title)}</div>
         <div class="r">Recently viewed</div>
@@ -345,14 +362,15 @@ function renderHero(list) {
 }
 
 function renderRow(title, items, mediaType = "movie") {
-  const withPosters = items.filter((m) => m.poster_path);
-  if (!withPosters.length) return;
+  const withImages = items.filter((m) => m.backdrop_path || m.poster_path);
+  if (!withImages.length) return;
   const { section, track } = createRowShell(title);
-  withPosters.forEach((m) => {
+  withImages.forEach((m) => {
+    const img = m.backdrop_path || m.poster_path;
     const card = document.createElement("div");
     card.className = "card";
     card.innerHTML = `
-      <img loading="lazy" src="${IMG_BASE}/w500${m.poster_path}" alt="${escapeHtml(m.title || m.name)}" />
+      <img loading="lazy" src="${IMG_BASE}/w500${img}" alt="${escapeHtml(m.title || m.name)}" />
       <div class="card-meta">
         <div class="t">${escapeHtml(m.title || m.name)}</div>
         <div class="r">${m.vote_average ? "★ " + m.vote_average.toFixed(1) : ""}</div>

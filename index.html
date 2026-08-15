@@ -35,14 +35,50 @@
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="caret"><path d="M6 9l6 6 6-6"/></svg>
       </button>
       <div id="profile-dropdown" class="profile-dropdown hidden">
-        <div class="profile-email" id="profile-email"></div>
-        <div class="profile-meta" id="profile-meta"></div>
+        <div class="profile-header">
+          <div class="profile-avatar-lg" id="profile-avatar-lg">U</div>
+          <div>
+            <div class="profile-email" id="profile-email"></div>
+            <div class="profile-meta" id="profile-meta"></div>
+          </div>
+        </div>
         <hr class="profile-divider" />
-        <button id="logout-btn" class="dropdown-item">Sign Out of StreamFlix</button>
+        <button id="help-centre-btn" class="dropdown-item icon-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Help Centre
+        </button>
+        <hr class="profile-divider" />
+        <button id="logout-btn" class="dropdown-item icon-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sign Out of StreamFlix
+        </button>
       </div>
     </div>
   </div>
 </nav>
+
+<div id="help-modal" class="modal-overlay">
+  <div class="help-box">
+    <button id="help-close" class="modal-close">✕</button>
+    <h2>Help Centre</h2>
+    <div class="help-item">
+      <h3>What is StreamFlix?</h3>
+      <p>A student project built as a Netflix-style browsing demo, with real Firebase authentication and live movie/TV data from TMDB.</p>
+    </div>
+    <div class="help-item">
+      <h3>Why do I only see trailers, not full movies?</h3>
+      <p>Full-length streaming requires paid studio licensing that isn't available for a project like this. Trailers are officially public, so they're used here to demonstrate real video-API playback.</p>
+    </div>
+    <div class="help-item">
+      <h3>Is my account data safe?</h3>
+      <p>Sign-in is handled by Firebase Authentication. Your password is never stored or visible to the site — only your email and account creation date are shown in your profile.</p>
+    </div>
+    <div class="help-item">
+      <h3>Something's not loading</h3>
+      <p>This app depends on the TMDB API being reachable. Try refreshing, or check your connection.</p>
+    </div>
+  </div>
+</div>
 
 <header id="hero" class="hero"></header>
 

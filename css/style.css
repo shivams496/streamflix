@@ -232,7 +232,7 @@ button { font-family: inherit; cursor: pointer; border: none; }
   position: absolute;
   top: 46px;
   right: 0;
-  min-width: 240px;
+  min-width: 260px;
   background: #181818;
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 6px;
@@ -241,15 +241,29 @@ button { font-family: inherit; cursor: pointer; border: none; }
   z-index: 600;
 }
 .profile-dropdown.hidden { display: none; }
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.profile-avatar-lg {
+  flex: 0 0 40px;
+  width: 40px; height: 40px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, var(--red), #6b0509);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+}
 .profile-email {
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   word-break: break-all;
 }
 .profile-meta {
   color: var(--text-dim);
-  font-size: 0.78rem;
-  margin-top: 4px;
+  font-size: 0.76rem;
+  margin-top: 3px;
 }
 .profile-divider {
   border: none;
@@ -266,6 +280,31 @@ button { font-family: inherit; cursor: pointer; border: none; }
   transition: color 0.15s;
 }
 .dropdown-item:hover { color: var(--red); }
+.dropdown-item.icon-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.dropdown-item.icon-item svg { flex-shrink: 0; opacity: 0.85; }
+
+.help-box {
+  width: min(560px, 100%);
+  max-height: 80vh;
+  overflow-y: auto;
+  background: var(--bg-elevated);
+  border-radius: 6px;
+  padding: 40px;
+  position: relative;
+}
+.help-box h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2rem;
+  letter-spacing: 1px;
+  margin-bottom: 24px;
+}
+.help-item { margin-bottom: 20px; }
+.help-item h3 { font-size: 1rem; margin-bottom: 6px; }
+.help-item p { color: var(--text-dim); font-size: 0.9rem; line-height: 1.55; }
 
 /* ---------- Hero ---------- */
 .hero {
